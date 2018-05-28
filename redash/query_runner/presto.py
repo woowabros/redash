@@ -47,6 +47,9 @@ class Presto(BaseQueryRunner):
                 'port': {
                     'type': 'number'
                 },
+                'source': {
+                    'type': 'string'
+                },
                 'schema': {
                     'type': 'string'
                 },
@@ -60,7 +63,7 @@ class Presto(BaseQueryRunner):
                     'type': 'string'
                 },
             },
-            'order': ['host', 'protocol', 'port', 'username', 'password', 'schema', 'catalog'],
+            'order': ['host', 'protocol', 'port', 'source', 'username', 'password', 'schema', 'catalog'],
             'required': ['host']
         }
 
@@ -98,14 +101,20 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
+        if user is None:
+            user_string = "redash"
+        else:
+            user_string = user.email.split('@')[0]
+
         connection = presto.connect(
             host=self.configuration.get('host', ''),
             port=self.configuration.get('port', 8080),
             protocol=self.configuration.get('protocol', 'http'),
-            username=self.configuration.get('username', 'redash'),
+            username=self.configuration.get('username', user_string),
             password=(self.configuration.get('password') or None),
             catalog=self.configuration.get('catalog', 'hive'),
-            schema=self.configuration.get('schema', 'default'))
+            schema=self.configuration.get('schema', 'default'),
+            source=self.configuration.get('source', 'redash'))
 
         cursor = connection.cursor()
 
