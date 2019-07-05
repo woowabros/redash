@@ -58,6 +58,7 @@ class BaseQueryRunner(object):
     def __init__(self, configuration):
         self.syntax = 'sql'
         self.configuration = configuration
+        self.presto_excluded_schemas = settings.PRESTO_SCAN_COLUMNS_EXCLUDE_SCHEMAS
 
     @classmethod
     def name(cls):

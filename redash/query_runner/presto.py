@@ -71,11 +71,14 @@ class Presto(BaseQueryRunner):
 
     def get_schema(self, get_stats=False):
         schema = {}
+        
+        excluded_schemas = ['pg_catalog', 'information_schema']
+        excluded_schemas.extend(self.presto_excluded_schemas)
         query = """
         SELECT table_schema, table_name, column_name
         FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-        """
+        WHERE table_schema NOT IN ({schemas})
+        """.format(schemas=', '.join("'{0}'".format(s) for s in excluded_schemas))
 
         results, error = self.run_query(query, None)
 
